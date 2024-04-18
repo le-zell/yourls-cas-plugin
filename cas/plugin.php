@@ -30,7 +30,10 @@ function cas_environment_check() {
 	
 	if ( !defined( 'PHPCAS_PORT' ) )
 		define( 'PHPCAS_PORT', 443 );
-
+	
+	if ( !defined( 'PHP_SERVICE_NAME') )
+        define ('PHP_SERVICE_NAME',yourls_site_url(false,''));
+	
 	if ( !defined( 'PHPCAS_HIJACK_LOGIN' ) )
 		define( 'PHPCAS_HIJACK_LOGIN', true );
 
@@ -63,7 +66,7 @@ function cas_page_hook( $args ) {
 		require_once PHPCAS_PATH; // /*$phpcas_path .*/ 'phpcas/CAS.php';
 
 		//phpCAS::setDebug();
-		phpCAS::client(CAS_VERSION_2_0, PHPCAS_HOST, PHPCAS_PORT, PHPCAS_CONTEXT);
+		phpCAS::client(CAS_VERSION_3_0, PHPCAS_HOST, PHPCAS_PORT, PHPCAS_CONTEXT, PHPCAS_SERVICE_NAME);
 		phpCAS::setCasServerCACert(PHPCAS_CERTCHAIN_PATH);
 		phpCAS::forceAuthentication();
 		// then set up external-auth cookie
@@ -89,14 +92,14 @@ function cas_logout_hook( $args ) {
 
 	// to enable single sign-out, also teardown the CAS session
         require_once PHPCAS_PATH; // /*$phpcas_path .*/ 'phpcas/CAS.php';
-        phpCAS::client(CAS_VERSION_2_0, PHPCAS_HOST, PHPCAS_PORT, PHPCAS_CONTEXT);
+        phpCAS::client(CAS_VERSION_3_0, PHPCAS_HOST, PHPCAS_PORT, PHPCAS_CONTEXT, PHPCAS_SERVICE_NAME);
         phpCAS::setCasServerCACert(PHPCAS_CERTCHAIN_PATH);
 	//phpCAS::logout();
-	phpCAS::logoutWithRedirectService( yourls_site_url() );
+	phpCAS::logoutWithRedirectService( yourls_site_url(false,'') );
 	
 	// if we hide the login screen, also hide logout screen
 	if ( PHPCAS_HIJACK_LOGIN ) {
-		yourls_redirect( yourls_site_url() );
+		yourls_redirect( yourls_site_url(false,'') );
 	}
 }
 
@@ -125,7 +128,7 @@ function cas_is_valid_user( $value ) {
 		// display the login screen. We want to hijack that.
 		// at this point, we already know that no CAS external auth is available
 		if ( PHPCAS_HIJACK_LOGIN ) {
-			header('Location: ' . yourls_site_url() . '/caslogin' );
+			header('Location: ' . yourls_site_url(false,'') . '/caslogin' );
 			die();
 		}
 	}
